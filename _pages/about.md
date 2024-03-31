@@ -2,7 +2,7 @@
 layout: about
 title: About
 permalink: /
-subtitle: Welcome to my site!
+subtitle: Welcome!
 
 profile:
   align: right
@@ -15,4 +15,6 @@ social: true # includes social icons at the bottom of the page
 ---
 
 
-I'm Ethan, a third-year at UCLA majoring in Biophysics and minoring in Data Science Engineering. My current interests include neurophysics, medical technologies, and mathematics.
+I'm Ethan, a third-year at UCLA majoring in Biophysics and minoring in Data Science Engineering. My current interests include neurophysics, medical technologies, and mathematics. 
+
+This site serves mostly as a hub to other links such as my email, Github, LinkedIn, Youtube channel, personal projects, and resume. Have fun exploring!
