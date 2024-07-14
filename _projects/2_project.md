@@ -1,81 +1,138 @@
 ---
 layout: page
-title: project 2
-description: a project with a background image and giscus comments
-img: assets/img/3.jpg
+title: Rare Words Finder
+description: App that highlights rare words in a text
+img: assets/img/rareWordsFinder.png
 importance: 2
-category: work
-giscus_comments: true
+category: Apps
+giscus_comments: false
+related_publications: false
 ---
 
-Every project has a beautiful feature showcase page.
-It's easy to include images in a flexible 3-column grid format.
-Make your photos 1/3, 2/3, or full width.
+<h1>{{ page.title }}</h1>
 
-To give your project a background in the portfolio page, just add the img tag to the front matter like so:
-
-    ---
-    layout: page
-    title: project
-    description: a project with a background image
-    img: /assets/img/12.jpg
-    ---
-
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/1.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/3.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
+<textarea id="text-input" placeholder="Paste your text here..."></textarea>
+<div id="slider-container">
+    <label for="num-words-slider" id="slider-label">Number of rare words to highlight: </label>
+    <input type="range" id="num-words-slider" min="1" max="50" value="10">
+    <span id="slider-value">10</span>
 </div>
-<div class="caption">
-    Caption photos easily. On the left, a road goes through a tunnel. Middle, leaves artistically fall in a hipster photoshoot. Right, in another hipster photoshoot, a lumberjack grasps a handful of pine needles.
-</div>
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/5.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    This image can also have a caption. It's like magic.
-</div>
+<div id="highlighted-text"></div>
+<table id="results-table">
+    <thead>
+        <tr>
+            <th>Word</th>
+            <th>Frequency</th>
+            <th>Zipf Ranking</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
-You can also put regular text between your rows of images.
-Say you wanted to write a little bit about your project before you posted the rest of the images.
-You describe how you toiled, sweated, _bled_ for your project, and then... you reveal its glory in the next row of images.
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    textarea {
+        width: 100%;
+        height: 200px;
+        font-size: 14px;
+        padding: 10px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    #highlighted-text {
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        margin-bottom: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    table, th, td {
+        border: 1px solid black;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+    }
+    .highlight {
+        background-color: yellow;
+        color: black;
+    }
+    #slider-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    #slider-label {
+        margin-right: 10px;
+    }
+</style>
 
-<div class="row justify-content-sm-center">
-    <div class="col-sm-8 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm-4 mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    You can also have artistically styled 2/3 + 1/3 images, like these.
-</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/wordfreq@2.5.0/src/wordfreq.worker.min.js"></script>
+<script>
+    const wordfreq = WordFreq();
 
-The code is simple.
-Just wrap your images with `<div class="col-sm">` and place them inside `<div class="row">` (read more about the <a href="https://getbootstrap.com/docs/4.4/layout/grid/">Bootstrap Grid</a> system).
-To make images responsive, add `img-fluid` class to each; for rounded corners and shadows use `rounded` and `z-depth-1` classes.
-Here's the code for the last row of images above:
+    $(document).ready(function() {
+        function processText() {
+            const text = $('#text-input').val();
+            const numWords = $('#num-words-slider').val();
 
-{% raw %}
+            wordfreq.process(text, (list) => {
+                const sorted_unique_words = list.map(item => item[0]);
+                const word_freqs = Object.fromEntries(list.map(item => [item[0], item[1]]));
 
-```html
-<div class="row justify-content-sm-center">
-  <div class="col-sm-8 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/6.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-  <div class="col-sm-4 mt-3 mt-md-0">
-    {% include figure.liquid path="assets/img/11.jpg" title="example image" class="img-fluid rounded z-depth-1" %}
-  </div>
-</div>
-```
+                const rarest_words = sorted_unique_words.slice(0, numWords);
+                const table_data = sorted_unique_words.map(word => {
+                    const frequency = word_freqs[word];
+                    const zipf = Math.log10(frequency / 1000);
+                    return [word, frequency.toExponential(1), zipf.toFixed(2)];
+                });
 
-{% endraw %}
+                highlightText(text, rarest_words);
+                displayTable(table_data);
+            });
+        }
+
+        $('#text-input').on('input', processText);
+
+        $('#num-words-slider').on('input', function() {
+            $('#slider-value').text($(this).val());
+            processText();
+        });
+
+        // Initial process
+        processText();
+    });
+
+    function highlightText(text, rarestWords) {
+        let highlightedText = text;
+        rarestWords.forEach(function(word) {
+            const regex = new RegExp(`\\b${word}\\b`, 'gi');
+            highlightedText = highlightedText.replace(regex, `<span class="highlight">${word}</span>`);
+        });
+        $('#highlighted-text').html(highlightedText.replace(/\n/g, '<br>'));
+    }
+
+    function displayTable(data) {
+        const tableBody = $('#results-table tbody');
+        tableBody.empty();
+        data.forEach(function(row) {
+            const tr = $('<tr></tr>');
+            row.forEach(function(cell) {
+                const td = $('<td></td>').text(cell);
+                tr.append(td);
+            });
+            tableBody.append(tr);
+        });
+    }
+</script>

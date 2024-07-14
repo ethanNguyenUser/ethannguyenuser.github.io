@@ -2,7 +2,7 @@
 layout: page
 title: Knowledge Wiki
 description: Zola site for Obsidian notes
-img: assets/img/knowledgewiki.png
+img: assets/img/Knowledge Wiki.png
 importance: 1
 category: Fun
 related_publications: false
@@ -10,7 +10,7 @@ related_publications: false
 
 <div class="row">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/knowledgewiki.png" title="Graph View of Knowledge Wiki" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid loading="eager" path="assets/img/Knowledge Wiki.png" title="Graph View of Knowledge Wiki" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 
